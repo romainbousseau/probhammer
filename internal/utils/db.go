@@ -28,6 +28,8 @@ func OpenDBConnection(config Config) (*gorm.DB, error) {
 func Migrate(db *gorm.DB) error {
 	if err := db.AutoMigrate(
 		models.Datasheet{},
+		models.Faction{},
+		models.Unit{},
 	); err != nil {
 		return err
 	}
@@ -59,7 +61,34 @@ func SetTestDB(t *testing.T) (*gorm.DB, func()) {
 		if err != nil {
 			panic(err)
 		}
+
+		err = db.Migrator().DropTable(&models.Faction{})
+		if err != nil {
+			panic(err)
+		}
+
+		err = db.Migrator().DropTable(&models.Unit{})
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return db, cleanup
+}
+
+// DropAllTables drops all tables. Use with caution!
+func DropAllTables(db *gorm.DB) error {
+	tables, err := db.Migrator().GetTables()
+	if err != nil {
+		return err
+	}
+
+	for _, table := range tables {
+		err = db.Migrator().DropTable(table)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

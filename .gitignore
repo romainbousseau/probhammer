@@ -17,3 +17,6 @@ main
 
 # Env variables
 .env
+
+# CSV files
+*.csv
