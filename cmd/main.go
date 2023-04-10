@@ -26,6 +26,7 @@ func main() {
 		log.Fatal("cannot connect to db:", err)
 	}
 
+	// migrate tables
 	err = utils.Migrate(db)
 	if err != nil {
 		log.Fatal("cannot migrate tables:", err)
