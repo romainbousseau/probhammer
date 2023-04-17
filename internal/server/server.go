@@ -17,6 +17,7 @@ type Server struct {
 
 type Storage interface {
 	FindDatasheets(ctx *gin.Context) ([]*models.Datasheet, error)
+	CreateDatasheet(ctx *gin.Context, datasheet *models.Datasheet) error
 }
 
 // NewServer builds a new server
@@ -29,6 +30,7 @@ func (s *Server) SetRoutesAndRun() error {
 
 	s.router.GET("/", s.Ping)
 	s.router.GET("/datasheets", s.FindDatasheets)
+	s.router.POST("/datasheets", s.CreateDatasheet)
 	s.router.GET("/calculate", s.Calculate)
 
 	err := s.router.Run()
@@ -66,5 +68,21 @@ func (s *Server) FindDatasheets(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, "ouch")
 	} else {
 		ctx.JSON(http.StatusOK, datasheets)
+	}
+}
+
+// CreateDatasheet creates a new datasheet
+func (s *Server) CreateDatasheet(ctx *gin.Context) {
+	var datasheet models.Datasheet
+
+	if err := ctx.BindJSON(&datasheet); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := s.storage.CreateDatasheet(ctx, &datasheet)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 }

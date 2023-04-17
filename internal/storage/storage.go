@@ -17,7 +17,7 @@ func NewStorage(db *gorm.DB) *Storage {
 }
 
 // FindDataSheets returns all datasheets from DB
-// TODO: remove, this is a test function 
+// TODO: remove, this is a test function
 func (s Storage) FindDatasheets(ctx *gin.Context) ([]*models.Datasheet, error) {
 	var datasheets []*models.Datasheet
 
@@ -27,4 +27,14 @@ func (s Storage) FindDatasheets(ctx *gin.Context) ([]*models.Datasheet, error) {
 	}
 
 	return datasheets, nil
+}
+
+// CreateDatasheet creates a new datasheet in DB
+func (s Storage) CreateDatasheet(ctx *gin.Context, datasheet *models.Datasheet) error {
+	err := s.db.Debug().WithContext(ctx).Create(datasheet).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
