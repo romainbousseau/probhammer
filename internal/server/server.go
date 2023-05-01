@@ -20,6 +20,7 @@ type Storage interface {
 	FindDatasheets(ctx *gin.Context) ([]*models.Datasheet, error)
 	CreateDatasheet(ctx *gin.Context, datasheet *models.Datasheet) error
 	FindDatasheetByID(ctx *gin.Context, id uint) (*models.Datasheet, error)
+	DeleteDatasheet(ctx *gin.Context, id uint) error
 }
 
 // NewServer builds a new server
@@ -35,6 +36,7 @@ func (s *Server) SetRoutesAndRun() error {
 	s.router.GET("/datasheets", s.FindDatasheets)
 	s.router.GET("/datasheets/:id", s.FindDatasheetByID)
 	s.router.POST("/datasheets", s.CreateDatasheet)
+	s.router.DELETE("/datasheets/:id", s.DeleteDatasheet)
 
 	s.router.GET("/calculate", s.Calculate)
 
@@ -102,6 +104,21 @@ func (s *Server) CreateDatasheet(ctx *gin.Context) {
 	}
 
 	err := s.storage.CreateDatasheet(ctx, &datasheet)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+}
+
+// DeleteDatasheet deletes a datasheet
+func (s *Server) DeleteDatasheet(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = s.storage.DeleteDatasheet(ctx, uint(id))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

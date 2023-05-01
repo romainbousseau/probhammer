@@ -111,6 +111,49 @@ func TestStorage_CreateDatasheet(t *testing.T) {
 	}
 }
 
+func TestStorage_DeleteDatasheet(t *testing.T) {
+	type args struct {
+		ctx *gin.Context
+		id  uint
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "Delete a datasheet",
+			args: args{
+				ctx: ctx,
+				id:  1,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Delete a non existing datasheet",
+			args: args{
+				ctx: ctx,
+				id:  666,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		db, cleanup := utils.SetTestDB(t)
+		s := NewStorage(db)
+
+		t.Run(tt.name, func(t *testing.T) {
+			createDatasheets(t, db)
+			t.Cleanup(cleanup)
+
+			if err := s.DeleteDatasheet(tt.args.ctx, tt.args.id); (err != nil) != tt.wantErr {
+				t.Errorf("Storage.DeleteDatasheet() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+
 func createDatasheets(t *testing.T, db *gorm.DB) {
 	datasheets := []models.Datasheet{
 		{Name: "Boyz"},

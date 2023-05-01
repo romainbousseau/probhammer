@@ -49,3 +49,13 @@ func (s Storage) FindDatasheetByID(ctx *gin.Context, id uint) (*models.Datasheet
 
 	return &datasheet, nil
 }
+
+// DeleteDatasheet deletes a datasheet from DB
+func (s Storage) DeleteDatasheet(ctx *gin.Context, id uint) error {
+	err := s.db.WithContext(ctx).Delete(&models.Datasheet{}, id).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
