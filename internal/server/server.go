@@ -71,7 +71,7 @@ func (s *Server) Calculate(ctx *gin.Context) {
 func (s *Server) FindDatasheets(ctx *gin.Context) {
 	datasheets, err := s.storage.FindDatasheets(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, "ouch")
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, datasheets)
 	}
