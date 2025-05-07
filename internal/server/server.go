@@ -17,6 +17,9 @@ type Server struct {
 
 type Storage interface {
 	FindDatasheets(ctx *gin.Context) ([]*models.Datasheet, error)
+	CreateDatasheet(ctx *gin.Context, datasheet *models.Datasheet) error
+	FindDatasheetByID(ctx *gin.Context, id uint) (*models.Datasheet, error)
+	DeleteDatasheet(ctx *gin.Context, id uint) error
 }
 
 // NewServer builds a new server
@@ -28,7 +31,12 @@ func NewServer(storage Storage, router *gin.Engine) Server {
 func (s *Server) SetRoutesAndRun() error {
 
 	s.router.GET("/", s.Ping)
+
 	s.router.GET("/datasheets", s.FindDatasheets)
+	s.router.GET("/datasheets/:id", s.FindDatasheetByID)
+	s.router.POST("/datasheets", s.CreateDatasheet)
+	s.router.DELETE("/datasheets/:id", s.DeleteDatasheet)
+
 	s.router.GET("/calculate", s.Calculate)
 
 	err := s.router.Run()
@@ -56,15 +64,4 @@ func (s *Server) Calculate(ctx *gin.Context) {
 	c.Calculate()
 
 	ctx.JSON(http.StatusOK, c.Results)
-}
-
-// Find Datasheets returns all datasheets from DB
-// TODO: remove, this is a test function
-func (s *Server) FindDatasheets(ctx *gin.Context) {
-	datasheets, err := s.storage.FindDatasheets(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, "ouch")
-	} else {
-		ctx.JSON(http.StatusOK, datasheets)
-	}
 }
